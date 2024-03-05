@@ -1,13 +1,8 @@
-import React from 'react'
-import './Video.css'
-
+import React from "react";
+import "./Video.css";
 
 const Video = () => {
-  return (
-    <div>
-        
-    </div>
-  )
-}
+  return <div className="play-container"></div>;
+};
 
-export default Video
+export default Video;
