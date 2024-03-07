@@ -13,5 +13,6 @@ nav {
 }
 
 .nav-left .logo{
-    width: 130px;
+    width: 60px;
+    border-radius: 50px;
 }
