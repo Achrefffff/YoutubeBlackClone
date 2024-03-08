@@ -26,22 +26,25 @@ const PlayVideo = () => {
       });
   };
   const fetchOtherData = async () => {
-    const channelData_url = ` https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet.channelId}&key=${API_KEY}`;
-    await fetch(channelData_url)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setChannelData(data.items[0]);
-      });
+    if (apiData && apiData.snippet && apiData.snippet.channelId) {
+      const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet.channelId}&key=${API_KEY}`;
+      await fetch(channelData_url)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setChannelData(data.items[0]);
+        });
 
-    const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}`;
+      const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}`;
 
-    await fetch(comment_url)
-      .then((res) => res.json())
-      .then((data) => {
-        setCommentData(data.items);
-      });
+      await fetch(comment_url)
+        .then((res) => res.json())
+        .then((data) => {
+          setCommentData(data.items);
+        });
+    }
   };
+
   useEffect(() => {
     fetchVideoData();
   }, [videoId]);
@@ -55,9 +58,9 @@ const PlayVideo = () => {
       {/*<video src={video1} controls autoPlay muted></video>*/}
       <iframe
         src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-        frameborder="0"
+        frameBorder="0"
         allow="accelerometer; autoplay;"
-        allowfullscreen
+        allowFullScreen
         muted={false}
       ></iframe>
       <h3>{apiData ? apiData.snippet.title : "title here"}</h3>
@@ -136,7 +139,11 @@ const PlayVideo = () => {
                 <p>{item.snippet.topLevelComment.snippet.textDisplay}</p>
                 <div className="comment-action">
                   <img src={like} alt="" />
-                  <span>{value_converter(item.snippet.topLevelComment.snippet.likeCount)}</span>
+                  <span>
+                    {value_converter(
+                      item.snippet.topLevelComment.snippet.likeCount
+                    )}
+                  </span>
                   <img src={dislike} alt="" />
                   <span>1</span>
                 </div>

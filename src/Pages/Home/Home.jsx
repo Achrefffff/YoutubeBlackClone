@@ -6,6 +6,7 @@ import { useState } from "react";
 
 const Home = ({ sidebar }) => {
   const [category, setCategory] = useState(0);
+  
   return (
     <>
       <Sidebar
