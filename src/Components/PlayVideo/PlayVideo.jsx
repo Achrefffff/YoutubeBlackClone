@@ -1,14 +1,55 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./PlayVideo.css";
-import video1 from "../../assets/video.mp4";
 import like from "../../assets/like.png";
 import dislike from "../../assets/dislike.png";
 import share from "../../assets/share.png";
 import save from "../../assets/save.png";
-import jack from "../../assets/jack.png";
-import user_profile from "../../assets/user_profile.jpg";
+import { useParams } from "react-router";
+import { useState } from "react";
+import { API_KEY, value_converter } from "../../data";
+import moment from "moment";
 
-const PlayVideo = ({videoId}) => {
+const PlayVideo = () => {
+  
+  const {videoId} = useParams();
+  const [apiData, setApiData] = useState(null);
+  const [channelData, setChannelData] = useState(null);
+  const [commentData, setCommentData] = useState([]);
+
+  const fetchVideoData = async () => {
+    const videoDetails_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`;
+    await fetch(videoDetails_url)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setApiData(data.items[0]);
+      });
+  };
+  const fetchOtherData = async () => {
+    const channelData_url = ` https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet.channelId}&key=${API_KEY}`;
+    await fetch(channelData_url)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setChannelData(data.items[0]);
+      });
+
+    const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&key=${API_KEY}`;
+
+    await fetch(comment_url)
+      .then((res) => res.json())
+      .then((data) => {
+        setCommentData(data.items);
+      });
+  };
+  useEffect(() => {
+    fetchVideoData();
+  }, [videoId]);
+
+  useEffect(() => {
+    fetchOtherData();
+  }, [apiData]);
+
   return (
     <div className="play-video">
       {/*<video src={video1} controls autoPlay muted></video>*/}
@@ -19,12 +60,22 @@ const PlayVideo = ({videoId}) => {
         allowfullscreen
         muted={false}
       ></iframe>
-      <h3>Lorem ipsum dolore asba</h3>
+      <h3>{apiData ? apiData.snippet.title : "title here"}</h3>
       <div className="play-video-info">
-        <p>1525 views &bull; 2 days ago</p>
+        <p>
+          {apiData && apiData.statistics && apiData.statistics.viewCount
+            ? value_converter(apiData.statistics.viewCount)
+            : "16k"}{" "}
+          views &bull;{" "}
+          {apiData && apiData.snippet && apiData.snippet.publishedAt
+            ? moment(apiData.snippet.publishedAt).fromNow()
+            : "2 days ago"}
+        </p>
+
         <div>
           <span>
-            <img src={like} alt="" /> 125
+            <img src={like} alt="" />{" "}
+            {apiData ? value_converter(apiData.statistics.likeCount) : 155}
           </span>
           <span>
             <img src={dislike} alt="" /> 2
@@ -39,59 +90,60 @@ const PlayVideo = ({videoId}) => {
       </div>
       <hr />
       <div className="publisher">
-        <img src={jack} alt="" />
+        <img
+          src={channelData ? channelData.snippet.thumbnails.default.url : ""}
+          alt=""
+        />
         <div>
-          <p>Achref Channel</p>
-          <span> 1M Subscriber</span>
+          <p>{apiData ? apiData.snippet.channelTitle : ""}</p>
+          <span>
+            {" "}
+            {channelData
+              ? value_converter(channelData.statistics.subscriberCount)
+              : "69"}{" "}
+            Subscriber
+          </span>
         </div>
         <button>Subscribe</button>
       </div>
       <div className="vid-description">
-        <p>blabla lorem impsm doless klamnki</p>
         <p>
-          {" "}
-          labla lorem impsm doless klamnk blabla lorem impsm doless klamnki
+          {apiData
+            ? apiData.snippet.description.slice(0, 550)
+            : "7out houni description"}{" "}
         </p>
         <hr />
-        <h4>169 Comments</h4>
-        <div className="comment">
-          <img src={user_profile} alt="" />
-          <div>
-            <h3>
-              Ach Ch <span>2 days ago</span>
-            </h3>
-            <p>
-              Pellentesque habitant morbi tristique senectus et netus et
-              malesuada fames ac turpis egestas. In hac habitasse platea
-              dictumst
-            </p>
-            <div className="comment-action">
-              <img src={like} alt="" />
-              <span>269</span>
-              <img src={dislike} alt="" />
-              <span>1</span>
+        <h4>
+          {" "}
+          {apiData
+            ? value_converter(apiData.statistics.commentCount)
+            : 169}{" "}
+          Comments
+        </h4>
+
+        {commentData.map((item, index) => {
+          return (
+            <div key={index} className="comment">
+              <img
+                src={item.snippet.topLevelComment.snippet.authorProfileImageUrl}
+                alt=""
+              />
+              <div>
+                <h3>
+                  {item.snippet.topLevelComment.snippet.authorDisplayName}{" "}
+                  <span>2 days ago</span>
+                </h3>
+                <p>{item.snippet.topLevelComment.snippet.textDisplay}</p>
+                <div className="comment-action">
+                  <img src={like} alt="" />
+                  <span>{value_converter(item.snippet.topLevelComment.snippet.likeCount)}</span>
+                  <img src={dislike} alt="" />
+                  <span>1</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="comment">
-          <img src={user_profile} alt="" />
-          <div>
-            <h3>
-              Ach Ch <span>2 days ago</span>
-            </h3>
-            <p>
-              Pellentesque habitant morbi tristique senectus et netus et
-              malesuada fames ac turpis egestas. In hac habitasse platea
-              dictumst
-            </p>
-            <div className="comment-action">
-              <img src={like} alt="" />
-              <span>269</span>
-              <img src={dislike} alt="" />
-              <span>1</span>
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );

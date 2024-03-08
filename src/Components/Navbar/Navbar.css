@@ -7,12 +7,30 @@ nav {
   top: 0;
   z-index: 10;
 }
-.nav-left .menu-icon{
-    width: 22px;
-    margin-right: 25px;
+.nav-left .menu-icon {
+  width: 22px;
+  margin-right: 25px;
 }
 
-.nav-left .logo{
-    width: 60px;
-    border-radius: 50px;
+.nav-left .logo {
+  width: 60px;
+  border-radius: 50px;
+}
+@media (max-width: 900px) {
+  .menu-icon {
+    display: none;
+  }
+  .nav-right img {
+    display: none;
+  }
+  .nav-right .user-icon {
+    display: block;
+    width: 30px;
+  }
+  .logo {
+    width: 90px;
+  }
+  .nav-middle .search-box input {
+    width: 100px;
+  }
 }
